@@ -2,31 +2,49 @@ package com.mario.localizacion;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.Locale;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, LocationListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener,GoogleApiClient.OnConnectionFailedListener,GoogleApiClient.ConnectionCallbacks {
     public static final int LOCATION_REQUEST_CODE = 1;
     private GoogleMap mMap;
-   public static double lat1,lng1;
+    public static double lat1, lng1;
+    public static double lat2=42.236323;
+    public static double lng2=-8.712158;
+    public static Marker marcaT;
+    private GoogleApiClient apiClient;
+    private static final String LOGTAG = "android-localizacion";
+
+    // Ejemplo: Crear círculo con radio de 100m
+    // y centro (42.236954,  -8.712717)
+    LatLng center = new LatLng(42.236954, -8.712717);
+    int radius = 100;
 
 
     @Override
@@ -37,6 +55,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        apiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addConnectionCallbacks(this)
+                .addApi(LocationServices.API)
+                .build();
+
     }
 
 
@@ -55,11 +79,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //activar la escucha para detectar si pulsamos la pantalla y que nos salan las coordenadas
         mMap.setOnMapClickListener(this);
         // Add a marker in vigo and move the camera
-        LatLng telePizza = new LatLng(42.236954, -8.712717);
+        LatLng tesoro = new LatLng(lat2, lng2);
 
-        Marker marcaT = mMap.addMarker(new MarkerOptions().position(telePizza).title("TelePizza").snippet("Marca TelePizza vigo"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(telePizza));
-        // marcaT.setVisible(false);
+        marcaT = mMap.addMarker(new MarkerOptions().position(tesoro).title("Tesoro").snippet("Marca Tesoro"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(tesoro));
+        marcaT.setVisible(false);
 
         // Controles UI
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -80,8 +104,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
+        CircleOptions circleOptions = new CircleOptions()
+                .center(center)
+                .radius(radius)
+                .strokeColor(Color.parseColor("#0D47A1"))
+                .strokeWidth(4)
+                .fillColor(Color.argb(32, 33, 150, 243));
+        // Añadir círculo
+        Circle circle = mMap.addCircle(circleOptions);
+
 
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -113,27 +147,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapClick(LatLng latLng) {
 
      calcularDistancia();
-        
 
 
-    }
-
-    @Override
-    public void onLocationChanged(Location loc) {
-        // Este mŽtodo se ejecuta cada vez que el GPS recibe nuevas coordenadas
-        // debido a la detecci—n de un cambio de ubicacion
-        lat1=loc.getLatitude();
-        lng1=loc.getLongitude();
-        String Text = "Mi ubicacion actual es: " + "\n Lat = "
-                + loc.getLatitude() + "\n Long = " + loc.getLongitude();
 
     }
 
     public void calcularDistancia() {
+        /*String la= String.valueOf(lat1);
+        String lo =String.valueOf(lng1);
+
+
+        Toast.makeText(this, la+" "+lo, Toast.LENGTH_LONG).show();*/
 
         double earthRadius = 6372.795477598;
-        double lat2=42.236954;
-        double lng2=-8.712717;
+
 
         double dLat = Math.toRadians(lat1-lat2);
         double dLng = Math.toRadians(lng1-lng2);
@@ -142,12 +169,63 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Math.sin(dLng/2) * Math.sin(dLng/2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         double dist = earthRadius * c;
-
-        String distancia=String.valueOf(dist);
-        Toast.makeText(this, distancia, Toast.LENGTH_LONG).show();
+        double distMet=dist*1000;
+        String distancia=String.valueOf(distMet);
+        marcaT.setVisible(true);
+        Toast.makeText(this, distancia+" metros ", Toast.LENGTH_LONG).show();
 
     }
 
+    private void updateUI(Location loc) {
+
+        if (loc != null) {
+            lat1=loc.getLatitude();
+            lng1=loc.getLongitude();
+            Toast.makeText(this, String.valueOf(lat1)+" "+String.valueOf(lng1), Toast.LENGTH_LONG).show();
+        } else {
+
+            Toast.makeText(this, "Latitud y Longitud desconocidas", Toast.LENGTH_LONG).show();
+
+        }
 
 
+}
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        //Conectado correctamente a Google Play Services
+
+        //...
+
+        //Conectado correctamente a Google Play Services
+
+        if (ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_REQUEST_CODE);
+        } else {
+
+            Location lastLocation =
+                    LocationServices.FusedLocationApi.getLastLocation(apiClient);
+
+            updateUI(lastLocation);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        //Se ha interrumpido la conexión con Google Play Services
+
+        Log.e(LOGTAG, "Se ha interrumpido la conexión con Google Play Services");
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        //Se ha producido un error que no se puede resolver automáticamente
+        //y la conexión con los Google Play Services no se ha establecido.
+
+        Log.e(LOGTAG, "Error grave al conectar con Google Play Services");
+    }
 }

@@ -1,6 +1,7 @@
 package com.mario.localizacion;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
@@ -31,8 +32,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.Locale;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks,GoogleMap.OnMapLongClickListener {
     public static final int LOCATION_REQUEST_CODE = 1;
+    public final static int CODIGO=1;
     private GoogleMap mMap;
     public static double lat1, lng1;
     public static double lat2 =42.236323;
@@ -57,6 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
         apiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, this)
                 .addConnectionCallbacks(this)
@@ -80,6 +83,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         //activar la escucha para detectar si pulsamos la pantalla y que nos salan las coordenadas
         mMap.setOnMapClickListener(this);
+        mMap.setOnMapLongClickListener(this);
         // Add a marker in vigo and move the camera
         LatLng tesoro = new LatLng(lat2, lng2);
 
@@ -165,6 +169,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+
+
     public void calcularDistancia() {
         /*String la= String.valueOf(lat1);
         String lo =String.valueOf(lng1);
@@ -240,5 +246,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //y la conexión con los Google Play Services no se ha establecido.
 
         Log.e(LOGTAG, "Error grave al conectar con Google Play Services");
+    }
+
+
+//metodo para detectar un toque largo en la pantalla
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        Intent intent=new Intent(this,CodigoQR.class);
+        intent.putExtra("llamar","mensaje desde fragment");
+        startActivityForResult(intent,CODIGO);
+    }
+
+    //metodo para comunicar las actividades entre si y pasar datos
+    @Override
+    public void onActivityResult(int requestCode,int resultCode,Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+
+        if(requestCode == CODIGO){
+            if(resultCode == RESULT_OK){
+                String result=data.getStringExtra("llamar2");
+               // text.setText(result);
+                Toast.makeText(this, result, Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }

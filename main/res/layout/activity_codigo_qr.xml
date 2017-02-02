@@ -13,7 +13,9 @@
     tools:context="com.mario.localizacion.CodigoQR">
 
     <TextView
-        android:text="TextView"
+        android:text="1. Pulsa icono de la foto para escanear,
+
+2. Pulsa en ver nueva pista para volver al mapa y vuelve a dar un toque en el mapa para que se actualice la nueva pista"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tvFormat"
@@ -35,7 +37,7 @@
         android:layout_weight="1" />
 
     <TextView
-        android:text="TextView"
+        android:text=""
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tvResult"

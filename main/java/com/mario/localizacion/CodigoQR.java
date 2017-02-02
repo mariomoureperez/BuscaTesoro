@@ -22,14 +22,14 @@ public class CodigoQR extends AppCompatActivity {
         setContentView(R.layout.activity_codigo_qr);
         configureButtonReader();
 
-        
-        Button button2=(Button)findViewById(R.id.button2);
 
-        button2.setOnClickListener(new View.OnClickListener(){
+        Button comunicar=(Button)findViewById(R.id.button2);
+
+        comunicar.setOnClickListener(new View.OnClickListener(){
 
             public void onClick(View v){
                 Intent databack=new Intent();
-                databack.putExtra("llamar2",pista2);
+                databack.putExtra("pista2",pista2);
                 setResult(RESULT_OK,databack);
                 finish();
 
@@ -64,9 +64,10 @@ public class CodigoQR extends AppCompatActivity {
     }
 
     private void updateUITextViews(String scan_result, String scan_result_format) {
-        ((TextView)findViewById(R.id.tvFormat)).setText(scan_result_format);
+
         final TextView tvResult = (TextView)findViewById(R.id.tvResult);
         tvResult.setText(scan_result);
+        //Le pasamos el resultado del QR a la variable pista2 que se la pasara a la activity principal en el metodo oncreate()
         pista2=scan_result;
         ////**********/////
         Linkify.addLinks(tvResult, Linkify.ALL);

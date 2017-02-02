@@ -35,13 +35,19 @@ import java.util.Locale;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks,GoogleMap.OnMapLongClickListener {
     public static final int LOCATION_REQUEST_CODE = 1;
     public final static int CODIGO=1;
+    public static String result="";
+    public static String distancia;
     private GoogleMap mMap;
-    public static double lat1, lng1;
-    public static double lat2 =42.236323;
-    public static double lng2 = -8.712158;
+    public static double lat1, lng1;//latitud y longitud de mi posicion
+    public static double lat2 =42.236323; //latitud de la primera pista
+    public static double lng2 = -8.712158; //longitud de la primera pista
+    public static double lat3 =42.236974; //latitud de la segunda pista
+    public static double lng3 =-8.713468; //longitud de la segunda pista
     //marca vigo=42.236323, -8.712158
     //marca casa= 41.973718,-8.749834
+    //marca2 vigo=42.236974, -8.713468
     public static Marker marcaT;
+
     private GoogleApiClient apiClient;
     private static final String LOGTAG = "android-localizacion";
 
@@ -163,9 +169,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(apiClient);
         updateUI(lastLocation);
-     calcularDistancia();
+        calcularDistancia();
 
+        if(result.equals("SiguientePista")){
+            LatLng tesoro2 = new LatLng(lat3, lng3);
+            lat2=lat3;
+            lng2=lng3;
+            marcaT.remove();
+            marcaT=mMap.addMarker(new MarkerOptions().position(tesoro2).title("Tesoro2").snippet("Marca Tesoro2").visible(false));
 
+            }
+
+        if(result.equals("HasGanado")){
+            Toast.makeText(this, "Has Ganado", Toast.LENGTH_LONG).show();
+        }
+
+        Toast.makeText(this, distancia+" metros ", Toast.LENGTH_LONG).show();
 
     }
 
@@ -186,15 +205,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         double dist = earthRadius * c;
         double distMet=dist*1000;
-        String distancia=String.valueOf(distMet);
+        distancia=String.valueOf(distMet);
 
-        Toast.makeText(this, distancia+" metros ", Toast.LENGTH_LONG).show();
+
 
         if(distMet<=20){
             marcaT.setVisible(true);
         }else {
             marcaT.setVisible(false);
         }
+
+
 
     }
 
@@ -253,7 +274,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapLongClick(LatLng latLng) {
         Intent intent=new Intent(this,CodigoQR.class);
-        intent.putExtra("llamar","mensaje desde fragment");
+        //mensaje que pasaremos a la activity CodigoQR que en principio no nos hace falta
+       // intent.putExtra("llamar","mensaje desde fragment");
         startActivityForResult(intent,CODIGO);
     }
 
@@ -264,9 +286,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if(requestCode == CODIGO){
             if(resultCode == RESULT_OK){
-                String result=data.getStringExtra("llamar2");
-               // text.setText(result);
-                Toast.makeText(this, result, Toast.LENGTH_LONG).show();
+                 result=data.getStringExtra("pista2");
+
             }
         }
     }

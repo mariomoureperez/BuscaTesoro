@@ -154,7 +154,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
     }
-
+    //Método de la interfaz onMapClickListener para que al pulsar en el mapa haga lo que queramos descrito en el método
     @Override
     public void onMapClick(LatLng latLng) {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -167,9 +167,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+        //Asi tendremos nuestra localización
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(apiClient);
         updateUI(lastLocation);
         calcularDistancia();
+
+        if(result.equals("HasGanado")){
+            Toast.makeText(this, "Has Ganado", Toast.LENGTH_LONG).show();
+        }
 
         if(result.equals("SiguientePista")){
             LatLng tesoro2 = new LatLng(lat3, lng3);
@@ -177,19 +182,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             lng2=lng3;
             marcaT.remove();
             marcaT=mMap.addMarker(new MarkerOptions().position(tesoro2).title("Tesoro2").snippet("Marca Tesoro2").visible(false));
-
-            }
-
-        if(result.equals("HasGanado")){
-            Toast.makeText(this, "Has Ganado", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Vuelve a pulsar para actualizar la distancia", Toast.LENGTH_SHORT).show();
+            result="";
+            }else{
+            Toast.makeText(this, distancia+" metros ", Toast.LENGTH_LONG).show();
         }
-
-        Toast.makeText(this, distancia+" metros ", Toast.LENGTH_LONG).show();
 
     }
 
 
 
+
+    //calculamos la distancia entre mi posición y la pista.
     public void calcularDistancia() {
         /*String la= String.valueOf(lat1);
         String lo =String.valueOf(lng1);
@@ -205,7 +209,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         double dist = earthRadius * c;
         double distMet=dist*1000;
-        distancia=String.valueOf(distMet);
+        int distCort=(int) distMet;
+        distancia=String.valueOf(distCort);
 
 
 
@@ -218,7 +223,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
-
+    //Recogemos los datos de nuestra posición
     private void updateUI(Location loc) {
 
         if (loc != null) {
@@ -246,7 +251,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_REQUEST_CODE);
         } else {
-
+            //Obtener lat y long de mi posicion y se lo pasamos al updateUI.
             Location lastLocation =
                     LocationServices.FusedLocationApi.getLastLocation(apiClient);
 
@@ -270,7 +275,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-//metodo para detectar un toque largo en la pantalla
+    //metodo para detectar un toque largo en la pantalla
     @Override
     public void onMapLongClick(LatLng latLng) {
         Intent intent=new Intent(this,CodigoQR.class);

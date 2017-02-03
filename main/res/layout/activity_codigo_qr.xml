@@ -10,16 +10,16 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
-    tools:context="com.mario.localizacion.CodigoQR">
+    tools:context="com.mario.localizacion.CodigoQR"
+    android:background="#795548">
 
     <TextView
-        android:text="1. Pulsa icono de la foto para escanear,
-
-2. Pulsa en ver nueva pista para volver al mapa y vuelve a dar un toque en el mapa para que se actualice la nueva pista"
+        android:text="1. Pulsa icono de la foto para escanear,\n2. Pulsa en ver nueva pista para volver al mapa y vuelve a dar un toque en el mapa para que se actualice la nueva pista"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tvFormat"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:textColor="@color/common_google_signin_btn_text_dark_default" />
 
 
     <ImageButton
@@ -27,14 +27,16 @@
         android:layout_height="wrap_content"
         app:srcCompat="@android:drawable/ic_menu_camera"
         android:id="@+id/imageButton"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        tools:background="@color/cast_expanded_controller_text_color" />
 
     <Button
         android:text="Ver Nueva Pista"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/button2"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:background="#E0E0E0" />
 
     <TextView
         android:text=""

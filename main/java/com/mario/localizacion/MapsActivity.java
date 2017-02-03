@@ -55,7 +55,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             "6. Una vez encuentres el Código QR,leelo haciendo una pulsación larga en el mapa y sigue las instrucciones y al terminar" +
             " vuelve a seguir los pasos anteriores, hasta llegar al tesoro.\n" +
             "7. Recuerda corre, no pierdas tiempo y sé el primero en encontrarla.\n" +
-            "   ¡¡¡¡SUERTE!!!!";
+            "¡¡¡¡SUERTE!!!!";
 
     private GoogleApiClient apiClient;
     private static final String LOGTAG = "android-localizacion";
@@ -63,7 +63,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     // Círculo con radio de 100m
     // y centro (42.236954,  -8.712717)
     LatLng center = new LatLng(42.236954, -8.712717);
-    int radius = 100;
+    int radius = 150;
 
 
     @Override

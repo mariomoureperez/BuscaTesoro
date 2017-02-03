@@ -1,24 +1,21 @@
 package com.mario.localizacion;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,8 +27,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.Locale;
-
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks,GoogleMap.OnMapLongClickListener {
     public static final int LOCATION_REQUEST_CODE = 1;
     public final static int CODIGO=1;
@@ -39,19 +34,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static String distancia;
     private GoogleMap mMap;
     public static double lat1, lng1;//latitud y longitud de mi posicion
-    public static double lat2 =42.236323; //latitud de la primera pista
-    public static double lng2 = -8.712158; //longitud de la primera pista
-    public static double lat3 =42.236974; //latitud de la segunda pista
-    public static double lng3 =-8.713468; //longitud de la segunda pista
-    //marca vigo=42.236323, -8.712158
+    public static double latP1 =42.236323; //latitud de la primera pista
+    public static double lngP1 = -8.712158; //longitud de la primera pista
+    public static double latP2 =42.236974; //latitud de la segunda pista
+    public static double lngP2 =-8.713468; //longitud de la segunda pista
+    public static double latT =42.237647; //latitud del tesoro
+    public static double lngT =-8.712572; //longitud del tesoro
+    //pista1 vigo=42.236323, -8.712158
     //marca casa= 41.973718,-8.749834
-    //marca2 vigo=42.236974, -8.713468
+    //pista2 vigo=42.236974, -8.713468
+    //marca tesoro vigo=42.237647, -8.712572
     public static Marker marcaT;
+
+    public String guia="Hola, Preparado para buscar el Tesoro?.\n" +
+            "1. Situate en el mapa activando el GPS.\n" +
+            "2. Entra en el circulo azul donde estará escondida la primera pista.\n" +
+            "3. Una vez dentro del circulo pulsa en la pantalla para saber a que distancia te encuentras de la pista.\n" +
+            "4. Cuando estes a menos de 20 metros, te saldrá el punto exacto de la pista.\n" +
+            "5. Una vez estés justo en el punto, llega lo más divertido, busca el Código QR que te dirá donde esta la siguiente pista.\n" +
+            "6. Una vez encuentres el Código QR,leelo haciendo una pulsación larga en el mapa y sigue las instrucciones y al terminar" +
+            " vuelve a seguir los pasos anteriores, hasta llegar al tesoro.\n" +
+            "7. Recuerda corre, no pierdas tiempo y sé el primero en encontrarla.\n" +
+            "   ¡¡¡¡SUERTE!!!!";
 
     private GoogleApiClient apiClient;
     private static final String LOGTAG = "android-localizacion";
 
-    // Ejemplo: Crear círculo con radio de 100m
+    // Círculo con radio de 100m
     // y centro (42.236954,  -8.712717)
     LatLng center = new LatLng(42.236954, -8.712717);
     int radius = 100;
@@ -91,10 +100,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMapClickListener(this);
         mMap.setOnMapLongClickListener(this);
         // Add a marker in vigo and move the camera
-        LatLng tesoro = new LatLng(lat2, lng2);
+        LatLng pista1 = new LatLng(latP1, lngP1);
+        alertDialogo();
 
-        marcaT = mMap.addMarker(new MarkerOptions().position(tesoro).title("Tesoro").snippet("Marca Tesoro"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(tesoro));
+        marcaT = mMap.addMarker(new MarkerOptions().position(pista1).title("Primera Pista").snippet("Encuentra el Código QR"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(pista1));
         marcaT.setVisible(false);
 
         // Controles UI
@@ -172,21 +182,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         updateUI(lastLocation);
         calcularDistancia();
 
-        if(result.equals("HasGanado")){
-            Toast.makeText(this, "Has Ganado", Toast.LENGTH_LONG).show();
+        if(result.equals("")){
+            Toast.makeText(this, distancia + " metros ", Toast.LENGTH_LONG).show();
+        }
+        if (result.equals("pista")) {
+            LatLng pista2 = new LatLng(latP2, lngP2);
+            latP1 = latP2;
+            lngP1 = lngP2;
+            marcaT.remove();
+            marcaT = mMap.addMarker(new MarkerOptions().position(pista2).title("Segunda Pista").snippet("Encuentra el Código QR").visible(true));
+            Toast.makeText(this, "Vuelve a pulsar para actualizar la distancia", Toast.LENGTH_SHORT).show();
+            result = "";
+        }
+        if (result.equals("SegundaPista")) {
+            LatLng tesoro = new LatLng(latT, lngT);
+            latP1 = latT;
+            lngP1 = lngT;
+            marcaT.remove();
+            marcaT = mMap.addMarker(new MarkerOptions().position(tesoro).title("Tesoro").snippet("Encuentra el Tesoro").visible(true));
+            Toast.makeText(this, "Vuelve a pulsar para actualizar la distancia", Toast.LENGTH_SHORT).show();
+            result = "";
         }
 
-        if(result.equals("SiguientePista")){
-            LatLng tesoro2 = new LatLng(lat3, lng3);
-            lat2=lat3;
-            lng2=lng3;
-            marcaT.remove();
-            marcaT=mMap.addMarker(new MarkerOptions().position(tesoro2).title("Tesoro2").snippet("Marca Tesoro2").visible(false));
-            Toast.makeText(this, "Vuelve a pulsar para actualizar la distancia", Toast.LENGTH_SHORT).show();
-            result="";
-            }else{
-            Toast.makeText(this, distancia+" metros ", Toast.LENGTH_LONG).show();
-        }
 
     }
 
@@ -201,10 +218,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         double earthRadius = 6372.795477598;
 
-        double dLat = Math.toRadians(lat1-lat2);
-        double dLng = Math.toRadians(lng1-lng2);
+        double dLat = Math.toRadians(lat1- latP1);
+        double dLng = Math.toRadians(lng1- lngP1);
         double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(lat1)) *
+                Math.cos(Math.toRadians(latP1)) * Math.cos(Math.toRadians(lat1)) *
                         Math.sin(dLng/2) * Math.sin(dLng/2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         double dist = earthRadius * c;
@@ -214,11 +231,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-        if(distMet<=20){
+       /* if(distMet<=20){
             marcaT.setVisible(true);
         }else {
             marcaT.setVisible(false);
-        }
+        }*/
 
 
 
@@ -239,7 +256,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 }
-
+    //Conectamos con el GPS y obtenemos nuestra ubicación
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         //Conectado correctamente a Google Play Services
@@ -295,5 +312,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         }
+    }
+
+    public void alertDialogo(){
+        AlertDialog.Builder build = new AlertDialog.Builder(this);
+        build.setTitle("¡¡¡ Busca el Tesoro !!!");
+        build.setMessage(guia);
+        build.setPositiveButton("Aceptar",null);
+        build.create();
+        build.show();
     }
 }

@@ -1,6 +1,7 @@
 package com.mario.localizacion;
 
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.util.Linkify;
@@ -15,6 +16,8 @@ import com.mario.localizacion.clasesCodigoQR.IntentResult;
 
 public class CodigoQR extends AppCompatActivity {
     public static String pista2;
+    public String fin="!!!Enhorabuena¡¡¡\nHas encontrado el Tesoro escondido, vuelve a la base.\n" +
+            "Recuerda la palabra escrita para demostrar que llegaste el primero.";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +31,13 @@ public class CodigoQR extends AppCompatActivity {
         comunicar.setOnClickListener(new View.OnClickListener(){
 
             public void onClick(View v){
+                if(pista2.equals("HasGanado")){
+                    alertDialogo2();
+                }else{
                 Intent databack=new Intent();
                 databack.putExtra("pista2",pista2);
                 setResult(RESULT_OK,databack);
-                finish();
+                finish();}
 
             }
 
@@ -71,5 +77,14 @@ public class CodigoQR extends AppCompatActivity {
         pista2=scan_result;
         ////**********/////
         Linkify.addLinks(tvResult, Linkify.ALL);
+    }
+
+    public void alertDialogo2(){
+        AlertDialog.Builder build = new AlertDialog.Builder(this);
+        build.setTitle("¡¡¡ Has Ganado !!!");
+        build.setMessage(fin);
+        build.setPositiveButton("Aceptar",null);
+        build.create();
+        build.show();
     }
 }

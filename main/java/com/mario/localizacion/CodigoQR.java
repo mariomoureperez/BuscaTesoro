@@ -5,6 +5,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.util.Linkify;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -16,8 +18,17 @@ import com.mario.localizacion.clasesCodigoQR.IntentResult;
 
 public class CodigoQR extends AppCompatActivity {
     public static String pista2;
-    public String fin="!!!Enhorabuena¡¡¡\nHas encontrado el Tesoro escondido, vuelve a la base.\n" +
+    public String fin="!!!ENHORABUENA¡¡¡\n\nHas encontrado el Tesoro escondido, vuelve a la base.\n\n" +
             "Recuerda la palabra escrita para demostrar que llegaste el primero.";
+
+    public String ayuda="¿Necesitas ayuda?\n\n"+
+            "1. Situate en el mapa activando el GPS.\n\n"+
+            "2. Entra en el circulo azul donde estará escondida la primera pista.\n\n" +
+            "3. Una vez dentro del circulo toca en la pantalla para saber a que distancia te encuentras de la pista.\n\n" +
+            "4. Cuando estes a menos de 20 metros, te saldrá el punto exacto de la pista.\n\n" +
+            "5. Una vez estés justo en el punto, busca el Código QR que te dirá donde esta la siguiente pista.\n\n" +
+            "6. Una vez encuentres el Código QR, leelo haciendo una pulsación larga en el mapa, sigue las instrucciones y al terminar " +
+            "vuelve a seguir los pasos anteriores, hasta llegar al tesoro.";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,4 +98,30 @@ public class CodigoQR extends AppCompatActivity {
         build.create();
         build.show();
     }
+
+    public void dialogoAyuda(){
+        AlertDialog.Builder build = new AlertDialog.Builder(this);
+        build.setTitle("¡¡¡ AYUDA !!!");
+        build.setMessage(ayuda);
+        build.setPositiveButton("Aceptar",null);
+        build.create();
+        build.show();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.add("Ayuda").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        CharSequence title = item.getTitle();
+
+        if (title != null && title.equals("Ayuda")) {
+            dialogoAyuda();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }

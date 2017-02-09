@@ -14,7 +14,7 @@
     android:background="#795548">
 
     <TextView
-        android:text="1. Pulsa icono de la foto para escanear,\n2. Pulsa en ver nueva pista para volver al mapa y vuelve a dar un toque en el mapa para que se actualice la nueva pista"
+        android:text="1. Pulsa icono de la foto para escanear.\n\n2. Pulsa en ver nueva pista para volver al mapa.\n\n3. vuelve a dar un toque en el mapa para que se actualice la nueva pista."
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tvFormat"
